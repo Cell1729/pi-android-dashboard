@@ -10,7 +10,7 @@
 <body>
     <div class="left-column">
         <div class="section spotify-main">
-            <img id="album-art" src="" alt="" style="display: none;">
+            <img id="album-art" src="/static/image/no_track.jpg" alt="" style="display: block;">
             <div class="track-info">
                 <h2 id="track-title">Spotify</h2>
                 <p id="track-artist">待機中...</p>
@@ -52,6 +52,31 @@
                     <p class="loading">予定を確認中...</p>
                 </div>
             </div>
+        </div>
+        <div class="section resource-monitor">
+            <div class="res-item">
+                <div class="res-label">CPU</div>
+                <div class="res-bar-bg">
+                    <div id="cpu-bar" class="res-bar-fill cpu-color"></div>
+                </div>
+                <div id="cpu-text" class="res-val">0%</div>
+            </div>
+            <div class="res-item">
+                <div class="res-label">RAM</div>
+                <div class="res-bar-bg">
+                    <div id="ram-bar" class="res-bar-fill ram-color"></div>
+                </div>
+                <div id="ram-text" class="res-val">0%</div>
+            </div>
+            <div class="res-item">
+                <div class="res-label">GPU</div>
+                <div class="res-bar-bg">
+                    <div id="gpu-bar" class="res-bar-fill gpu-color"></div>
+                </div>
+                <div id="gpu-text" class="res-val">0%</div>
+                <div id="gpu-temp-text" class="res-temp">--°C</div>
+            </div>
+        </div>
         </div>
     </div>
 </body>

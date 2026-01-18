@@ -3,5 +3,5 @@ __pycahce__
 .env
 .venv
 env/
-backend\auth\credential.json
-backend\auth\token.json
+backend/auth/credential.json
+backend/auth/token.json

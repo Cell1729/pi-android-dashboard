@@ -185,3 +185,72 @@ body {
     margin-top: 5px;
     text-align: center;
 }
+
+/* リソースモニター用 */
+.resource-monitor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px !important;
+    border-top: 3px solid #ff4757; /* 負荷情報は情熱の赤 */
+}
+
+.res-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.res-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    width: 30px;
+    color: var(--text-dim);
+}
+
+.res-bar-bg {
+    flex-grow: 1;
+    height: 8px;
+    background: var(--panel-hover);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.res-bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease-out;
+}
+
+.cpu-color { background: linear-gradient(90deg, #ff4757, #ff6b81); box-shadow: 0 0 8px #ff4757; }
+.ram-color { background: linear-gradient(90deg, #2ed573, #7bed9f); box-shadow: 0 0 8px #2ed573; }
+
+.res-val {
+    font-size: 0.8rem;
+    font-family: monospace;
+    width: 40px;
+    text-align: right;
+}
+.gpu-color { 
+    background: linear-gradient(90deg, #ff9f43, #ff6b6b); 
+    box-shadow: 0 0 8px #ff9f43; 
+}
+
+.res-temp {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    width: 35px;
+    margin-left: 5px;
+    font-family: monospace;
+}
+
+/* 負荷が高いときに警告色にするアニメーション用 */
+.warning-pulse {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}

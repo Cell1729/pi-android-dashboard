@@ -9,10 +9,18 @@ import requests
 import datetime
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+import psutil
+from pynvml import *
 
 # .envの読み込み
 load_dotenv()
+
+try:
+    nvmlInit()
+    gpu_enabled = True
+    gpu_handle = nvmlDeviceGetHandleByIndex(0) # 1枚目のグラボを取得
+except:
+    gpu_enabled = False
 
 app = FastAPI()
 
@@ -180,5 +188,27 @@ async def get_calendar_events():
     except Exception as e:
         print(f"Calendar API error: {e}")
         return {"error": str(e)}
+    
+@app.get("/api/resources")
+async def get_resources():
+    res_data = {
+        "cpu": psutil.cpu_percent(interval=None),
+        "ram": psutil.virtual_memory().percent,
+        "gpu": 0,
+        "gpu_temp": 0,
+        "gpu_active": gpu_enabled
+    }
+    
+    if gpu_enabled:
+        try:
+            # 使用率と温度の取得
+            util = nvmlDeviceGetUtilizationRates(gpu_handle)
+            temp = nvmlDeviceGetTemperature(gpu_handle, NVML_TEMPERATURE_GPU)
+            res_data["gpu"] = util.gpu
+            res_data["gpu_temp"] = temp
+        except:
+            print("GPU情報の取得に失敗しました")
+            
+    return res_data
 
 # uvicorn main:app --host 0.0.0.0 --port 8000 --reload

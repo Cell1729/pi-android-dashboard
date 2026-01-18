@@ -123,35 +123,49 @@ async function updateWeather() {
 // --- 既存のupdateSpotifyにデバイス名取得を追加 ---
 async function updateSpotify() {
     try {
-        // 現在の曲を取得
-        const response = await fetch('/api/spotify/current');
-        const data = await response.json();
-        
-        // デバイス名を取得
-        const devRes = await fetch('/api/spotify/devices');
+        const [currRes, devRes] = await Promise.all([
+            fetch('/api/spotify/current'),
+            fetch('/api/spotify/devices')
+        ]);
+        const data = await currRes.json();
         const devices = await devRes.json();
+        
         const activeDev = devices.find(d => d.is_active);
-
         const titleEl = document.getElementById('track-title');
-        const deviceEl = document.getElementById('device-info');
+        const artistEl = document.getElementById('track-artist');
         const imgEl = document.getElementById('album-art');
+        const deviceEl = document.getElementById('device-info');
+        const btnEl = document.getElementById('play-pause-btn');
 
-        if (data.is_playing) {
+        if (!titleEl || !imgEl) return;
+
+        // デフォルト画像のパス
+        const NO_TRACK_IMAGE = "/static/image/no_track.jpg";
+
+        if (data.is_playing && data.image_url) {
             isPlaying = true;
             titleEl.innerText = data.title;
-            document.getElementById('track-artist').innerText = data.artist;
+            if (artistEl) artistEl.innerText = data.artist;
             imgEl.src = data.image_url;
             imgEl.style.display = 'block';
-            deviceEl.innerText = activeDev ? `🎧 ${activeDev.name}` : "";
+            if (btnEl) btnEl.innerText = '||';
+            if (deviceEl) deviceEl.innerText = activeDev ? `🎧 ${activeDev.name}` : "";
         } else {
+            // ★再生していない時の処理を修正
             isPlaying = false;
             titleEl.innerText = "Spotify 停止中";
-            imgEl.style.display = 'none';
-            deviceEl.innerText = "";
+            if (artistEl) artistEl.innerText = "曲を選択してください";
+            
+            imgEl.src = NO_TRACK_IMAGE; // 未再生用画像を表示
+            imgEl.style.display = 'block'; // 非表示にせず表示させる
+            
+            if (btnEl) btnEl.innerText = '▶';
+            if (deviceEl) deviceEl.innerText = "";
         }
-    } catch (e) {}
+    } catch (e) { 
+        console.error("Spotify error:", e); 
+    }
 }
-
 async function updateCalendar() {
     try {
         const res = await fetch('/api/calendar');
@@ -189,7 +203,36 @@ async function updateCalendar() {
         console.error("Calendar update error:", e);
     }
 }
+async function updateResources() {
+    try {
+        const res = await fetch('/api/resources');
+        const data = await res.json();
+        
+        // CPU, RAM の更新（既存コード）
+        document.getElementById('cpu-bar').style.width = `${data.cpu}%`;
+        document.getElementById('cpu-text').innerText = `${Math.round(data.cpu)}%`;
+        document.getElementById('ram-bar').style.width = `${data.ram}%`;
+        document.getElementById('ram-text').innerText = `${Math.round(data.ram)}%`;
 
+        // GPU の更新
+        if (data.gpu_active) {
+            const gpuBar = document.getElementById('gpu-bar');
+            gpuBar.style.width = `${data.gpu}%`;
+            document.getElementById('gpu-text').innerText = `${data.gpu}%`;
+            document.getElementById('gpu-temp-text').innerText = `${data.gpu_temp}°C`;
+
+            // 温度が高い(80度以上)場合に赤く光らせる演出
+            if (data.gpu_temp >= 80) {
+                gpuBar.classList.add('warning-pulse');
+            } else {
+                gpuBar.classList.remove('warning-pulse');
+            }
+        }
+    } catch (e) { console.error("Resource error:", e); }
+}
+// 2秒ごとに更新
+setInterval(updateResources, 1000);
+updateResources();
 // 15分ごとに自動更新
 setInterval(updateCalendar, 900000);
 updateCalendar();
