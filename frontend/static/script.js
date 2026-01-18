@@ -1,3 +1,6 @@
+// 再生状態の管理
+let isPlaying = false;
+
 // 時計
 function updateClock() {
     const now = new Date();
@@ -41,10 +44,17 @@ async function controlSpotify(action) {
     setTimeout(updateSpotify, 500);
 }
 
-let isPlaying = false;
 async function togglePlay() {
-    const action = isPlaying ? 'pause' : 'play';
-    await controlSpotify(action);
+    try {
+        const response = await fetch('/api/spotify/toggle');
+        const data = await response.json();
+        if (data.error) console.error(data.error);
+        
+        // 操作後に少し待ってからUIを更新
+        setTimeout(updateSpotify, 500);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 // 音量（バックエンド未実装の場合はログ出力のみ）

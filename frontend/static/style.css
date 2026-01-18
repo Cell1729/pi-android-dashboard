@@ -97,6 +97,10 @@
             background-color: #fff;
             color: var(--panel-color);
         }
+        .btn-play.active {
+            background-color: #1DB954; /* Spotifyグリーン */
+            color: white;
+        }
 
         #clock {
             font-size: 3.5rem;

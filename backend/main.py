@@ -16,7 +16,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=os.getenv('SPOTIFY_CLIENT_ID'),
     client_secret=os.getenv('SPOTIFY_CLIENT_SECRET'),
     redirect_uri=os.getenv('SPOTIFY_CLIENT_URI'),
-    scope="user-read-currently-playing user-modify-playback-state"
+    scope="user-read-currently-playing user-modify-playback-state user-read-playback-state"
 ))
 
 
@@ -60,9 +60,31 @@ async def play_spotify():
 @app.get("/api/spotify/pause")
 async def pause_spotify():
     try:
-        sp.pause_playback()
+        # 現在アクティブなデバイスを探す
+        devices = sp.devices()
+        active_device = next((d for d in devices['devices'] if d['is_active']), None)
+        
+        if active_device:
+            sp.pause_playback(device_id=active_device['id'])
+        else:
+            # アクティブなデバイスがない場合は、とりあえず最初のデバイスを止めてみる
+            sp.pause_playback()
         return {"status": "success"}
     except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/spotify/toggle")
+async def toggle_spotify():
+    try:
+        playback = sp.current_playback()
+        if playback and playback['is_playing']:
+            sp.pause_playback()
+            return {"status": "paused"}
+        else:
+            sp.start_playback()
+            return {"status": "playing"}
+    except Exception as e:
+        # Restriction violated を含むエラーを詳細に返す
         return {"error": str(e)}
 
 @app.get("/api/spotify/next")
