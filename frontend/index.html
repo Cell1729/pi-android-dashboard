@@ -8,30 +8,28 @@
     <script src="/static/script.js" defer></script>
 </head>
 <body>
+    <div class="left-column">
+        <div class="section spotify-main">
+            <img id="album-art" src="" alt="" style="display: none;">
+            <div class="track-info">
+                <h2 id="track-title">Spotify</h2>
+                <p id="track-artist">待機中...</p>
+            </div>
+        </div>
 
-    <div class="section spotify-main">
-        <img id="album-art" src="" alt="" style="display: none;">
-        <h2 id="track-title">Spotify</h2>
-        <p id="track-artist"></p>
-    </div>
+        <div class="section volume-container">
+            <input type="range" class="volume-slider" min="0" max="100" value="50" onchange="setVolume(this.value)">
+        </div>
 
-    <div class="section volume-container">
-        <input type="range" class="volume-slider" min="0" max="100" value="50" onchange="setVolume(this.value)">
-        <p style="font-size: 0.8rem; margin: 5px 0 0 0;"></p>
-    </div>
+        <div class="controls-container">
+            <button onclick="controlSpotify('previous')" class="btn">PREV</button>
+            <button onclick="controlSpotify('next')" class="btn">NEXT</button>
+            <button id="play-pause-btn" onclick="togglePlay()" class="btn btn-play">▶</button>
+        </div>
 
-    <div class="controls-container">
-        <button onclick="controlSpotify('prev')" class="btn">Previous</button>
-        <button onclick="controlSpotify('next')" class="btn">Next</button>
-        <button id="play-pause-btn" onclick="togglePlay()" class="btn btn-play">▶</button>
-    </div>
-    
-    <div id="device-info" style="font-size: 0.8rem; color: #1DB954; margin-bottom: 5px;"></div>
-    <img id="album-art" src="" alt="" style="display: none;">
-    <h2 id="track-title">Spotify</h2>
-
-    <div class="section info-weather">
-        <div class="weather-main">
+        <div id="device-info">🎧 SEARCHING...</div>
+        <div class="section info-weather-container">
+            <div class="weather-main">
                 <div class="weather-row-top">
                     <img id="weather-icon" src="" alt="">
                     <div id="temp-display"><span id="temp-curr">--</span><span class="unit">°C</span></div>
@@ -40,14 +38,21 @@
                     <div class="detail-item"><span>気圧</span><strong id="pressure">--</strong> hPa</div>
                     <div class="detail-item"><span>湿度</span><strong id="humidity">--</strong> %</div>
                 </div>
-        </div>
-
-        <div class="weather-forecast" id="forecast-list">
+            </div>
+            <div class="weather-forecast" id="forecast-list"></div>
         </div>
     </div>
 
-    <div class="section info-calendar">
-        <div id="clock">00:00:00</div>
+    <div class="right-column">
+        <div class="section info-calendar">
+            <div id="clock">00:00:00</div>
+            <div class="calendar-container">
+                <h3 class="sub-title">Upcoming Schedule</h3>
+                <div id="calendar-events">
+                    <p class="loading">予定を確認中...</p>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

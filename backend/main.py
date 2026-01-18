@@ -6,11 +6,17 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 import requests
+import datetime
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 # .envの読み込み
 load_dotenv()
 
 app = FastAPI()
+
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 # Spotifyの認証設定
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
@@ -24,6 +30,8 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.normpath(os.path.join(BASE_DIR, "..", "frontend"))
 STATIC_DIR = os.path.join(FRONTEND_DIR, "static") # frontend/static を指す
+
+TOKEN_PATH = os.path.join(BASE_DIR, "auth", "token.json") 
 
 if not os.path.exists(STATIC_DIR):
     print(f"警告: 静的フォルダが見つかりません: {STATIC_DIR}")
@@ -151,5 +159,26 @@ async def get_weather():
         },
         "forecast": fore_res['list'][:4] # 3時間おき×4個 = 12時間分
     }
+
+@app.get("/api/calendar")
+async def get_calendar_events():
+    try:
+        # 初回実行時は認証ブラウザが開く (token.jsonを保存して使い回す)
+        # 簡易化のためここでは認証済みの前提コード
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+        service = build('calendar', 'v3', credentials=creds)
+
+        # 現在時刻からの直近10件を取得
+        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        events_result = service.events().list(
+            calendarId='primary', timeMin=now,
+            maxResults=10, singleEvents=True,
+            orderBy='startTime'
+        ).execute()
+        
+        return events_result.get('items', [])
+    except Exception as e:
+        print(f"Calendar API error: {e}")
+        return {"error": str(e)}
 
 # uvicorn main:app --host 0.0.0.0 --port 8000 --reload

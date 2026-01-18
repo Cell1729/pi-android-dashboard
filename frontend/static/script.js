@@ -152,6 +152,50 @@ async function updateSpotify() {
     } catch (e) {}
 }
 
+async function updateCalendar() {
+    try {
+        const res = await fetch('/api/calendar');
+        const events = await res.json();
+        const calEl = document.getElementById('calendar-events');
+        
+        if (!events || events.length === 0) {
+            calEl.innerHTML = '<p style="text-align:center; opacity:0.5;">No upcoming events</p>';
+            return;
+        }
+
+        calEl.innerHTML = events.map(event => {
+            const start = new Date(event.start.dateTime || event.start.date);
+            const month = start.getMonth() + 1;
+            const day = start.getDate();
+            // updateCalendar関数の一部を修正
+            const timeStr = event.start.dateTime 
+                ? start.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }) 
+                : "終日"; // ALL DAY を「終日」にして横幅を節約
+
+            return `
+                <div class="event-item">
+                    <div class="event-date-box">
+                        <span class="month">${month}月</span>
+                        <span class="day">${day}</span>
+                    </div>
+                    <div class="event-details">
+                        <span class="event-time">${timeStr}</span>
+                        <span class="event-title">${event.summary}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error("Calendar update error:", e);
+    }
+}
+
+// 15分ごとに自動更新
+setInterval(updateCalendar, 900000);
+updateCalendar();
+// 15分おきに更新
+setInterval(updateCalendar, 900000);
+updateCalendar();
 // 起動時に天気を取得し、30分ごとに更新
 updateWeather();
 setInterval(updateWeather, 1800000);
