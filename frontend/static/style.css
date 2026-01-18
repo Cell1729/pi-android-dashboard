@@ -68,13 +68,16 @@
             grid-row: 3;
         }
 
-        /* --- パーツのデザイン --- */
+        /* style.css の既存の #album-art を調整 */
         #album-art {
-            width: 60%;
-            max-width: 200px;
-            border-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            margin-bottom: 15px;
+            width: 80%; /* 少し大きく */
+            max-width: 250px;
+            aspect-ratio: 1 / 1; /* 正方形を維持 */
+            object-fit: cover;
+            border-radius: 8px; /* 角を少し丸く */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); /* 影を深くして浮遊感を出す */
+            margin-bottom: 20px;
+            transition: opacity 0.5s ease; /* 切り替えを滑らかに */
         }
 
         .volume-slider {

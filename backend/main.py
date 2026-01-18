@@ -37,16 +37,25 @@ async def read_index():
 @app.get("/api/spotify/current")
 async def get_spotify_current():
     try:
-        track = sp.current_user_currently_playing()
-        if track is not None and track['is_playing']:
+        # メソッドを変更: current_playback() はより安定しています
+        playback = sp.current_playback()
+        
+        # 何も再生されていない（またはデバイスがアクティブでない）場合
+        if playback is None:
+            return {"is_playing": False, "message": "デバイスがアクティブではありません"}
+
+        if playback['is_playing'] and playback['item'] is not None:
             return {
                 "is_playing": True,
-                "title": track['item']['name'],
-                "artist": track['item']['artists'][0]['name'],
-                "image_url": track['item']['album']['images'][0]['url']
+                "title": playback['item']['name'],
+                "artist": playback['item']['artists'][0]['name'],
+                "image_url": playback['item']['album']['images'][0]['url']
             }
-        return {"is_playing": False, "message": "再生中ではありません"}
+        
+        return {"is_playing": False, "message": "停止中"}
+        
     except Exception as e:
+        # エラーメッセージを返す
         return {"error": str(e)}
     
 @app.get("/api/spotify/play")
@@ -100,6 +109,15 @@ async def prev_spotify():
     try:
         sp.previous_track()
         return {"status": "success"}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/spotify/volume")
+async def set_spotify_volume(value: int):
+    try:
+        # 0〜100の範囲で音量を設定
+        sp.volume(value)
+        return {"status": "success", "volume": value}
     except Exception as e:
         return {"error": str(e)}
     
