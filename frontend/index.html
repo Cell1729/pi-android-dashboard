@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TetherDash - Smart Console</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js"></script>
+</head>
+<body>
+
+    <div class="section spotify-main">
+        <img id="album-art" src="" alt="" style="display: none;">
+        <h2 id="track-title">Spotify</h2>
+        <p id="track-artist">待機中...</p>
+    </div>
+
+    <div class="section volume-container">
+        <input type="range" class="volume-slider" min="0" max="100" value="50" onchange="setVolume(this.value)">
+        <p style="font-size: 0.8rem; margin: 5px 0 0 0;">音量調整用スライドバー</p>
+    </div>
+
+    <div class="controls-container">
+        <button onclick="controlSpotify('prev')" class="btn">前</button>
+        <button onclick="controlSpotify('next')" class="btn">次</button>
+        <button id="play-pause-btn" onclick="togglePlay()" class="btn btn-play">▶</button>
+    </div>
+
+    <div class="section info-weather">
+        <h2>天気やニュース</h2>
+        <p>（API連携予定）</p>
+    </div>
+
+    <div class="section info-calendar">
+        <div id="clock">00:00:00</div>
+        <p>今日の予定など</p>
+    </div>
+</body>
+</html>
