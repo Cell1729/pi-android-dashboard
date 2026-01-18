@@ -21,19 +21,33 @@
     </div>
 
     <div class="controls-container">
-        <button onclick="controlSpotify('prev')" class="btn">前</button>
-        <button onclick="controlSpotify('next')" class="btn">次</button>
+        <button onclick="controlSpotify('prev')" class="btn">Previous</button>
+        <button onclick="controlSpotify('next')" class="btn">Next</button>
         <button id="play-pause-btn" onclick="togglePlay()" class="btn btn-play">▶</button>
     </div>
+    
+    <div id="device-info" style="font-size: 0.8rem; color: #1DB954; margin-bottom: 5px;"></div>
+    <img id="album-art" src="" alt="" style="display: none;">
+    <h2 id="track-title">Spotify</h2>
 
     <div class="section info-weather">
-        <h2>天気やニュース</h2>
-        <p>（API連携予定）</p>
+        <div class="weather-main">
+                <div class="weather-row-top">
+                    <img id="weather-icon" src="" alt="">
+                    <div id="temp-display"><span id="temp-curr">--</span><span class="unit">°C</span></div>
+                </div>
+                <div class="weather-details">
+                    <div class="detail-item"><span>気圧</span><strong id="pressure">--</strong> hPa</div>
+                    <div class="detail-item"><span>湿度</span><strong id="humidity">--</strong> %</div>
+                </div>
+        </div>
+
+        <div class="weather-forecast" id="forecast-list">
+        </div>
     </div>
 
     <div class="section info-calendar">
         <div id="clock">00:00:00</div>
-        <p>今日の予定など</p>
     </div>
 </body>
 </html>

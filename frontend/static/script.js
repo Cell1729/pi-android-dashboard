@@ -85,3 +85,73 @@ async function setVolume(val) {
         console.error("Volume control error:", e);
     }
 }
+
+// --- 追加：天気情報の取得 ---
+async function updateWeather() {
+    try {
+        const response = await fetch('/api/weather');
+        const data = await response.json();
+        const curr = data.current;
+
+        // 現在の天気を反映
+        document.getElementById('temp-curr').innerText = Math.round(curr.temp);
+        document.getElementById('pressure').innerText = curr.pressure;
+        document.getElementById('humidity').innerText = curr.humidity;
+        document.getElementById('weather-icon').src = `https://openweathermap.org/img/wn/${curr.icon}@2x.png`;
+
+        // 予報の反映 (12時間分 = 3時間×4個)
+        const forecastList = document.getElementById('forecast-list');
+        forecastList.innerHTML = ''; // 一旦クリア
+        
+        data.forecast.forEach(item => {
+            const time = new Date(item.dt * 1000).getHours();
+            const temp = Math.round(item.main.temp);
+            const icon = item.weather[0].icon;
+
+            const html = `
+                <div class="forecast-item">
+                    <div class="f-time">${time}:00</div>
+                    <img src="https://openweathermap.org/img/wn/${icon}.png" alt="">
+                    <div class="f-temp">${temp}°C</div>
+                </div>
+            `;
+            forecastList.insertAdjacentHTML('beforeend', html);
+        });
+    } catch (e) { console.error("Weather error:", e); }
+}
+
+// --- 既存のupdateSpotifyにデバイス名取得を追加 ---
+async function updateSpotify() {
+    try {
+        // 現在の曲を取得
+        const response = await fetch('/api/spotify/current');
+        const data = await response.json();
+        
+        // デバイス名を取得
+        const devRes = await fetch('/api/spotify/devices');
+        const devices = await devRes.json();
+        const activeDev = devices.find(d => d.is_active);
+
+        const titleEl = document.getElementById('track-title');
+        const deviceEl = document.getElementById('device-info');
+        const imgEl = document.getElementById('album-art');
+
+        if (data.is_playing) {
+            isPlaying = true;
+            titleEl.innerText = data.title;
+            document.getElementById('track-artist').innerText = data.artist;
+            imgEl.src = data.image_url;
+            imgEl.style.display = 'block';
+            deviceEl.innerText = activeDev ? `🎧 ${activeDev.name}` : "";
+        } else {
+            isPlaying = false;
+            titleEl.innerText = "Spotify 停止中";
+            imgEl.style.display = 'none';
+            deviceEl.innerText = "";
+        }
+    } catch (e) {}
+}
+
+// 起動時に天気を取得し、30分ごとに更新
+updateWeather();
+setInterval(updateWeather, 1800000);

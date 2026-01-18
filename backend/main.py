@@ -5,6 +5,7 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
+import requests
 
 # .envの読み込み
 load_dotenv()
@@ -121,4 +122,34 @@ async def set_spotify_volume(value: int):
     except Exception as e:
         return {"error": str(e)}
     
+@app.get("/api/spotify/devices")
+async def get_devices():
+    devices = sp.devices()
+    return devices['devices'] # 名前、ID、アクティブかどうかが返る
+
+
+@app.get("/api/weather")
+async def get_weather():
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    lat = "35.4433" # 横浜市の緯度
+    lon = "139.6333" # 横浜市の経度
+    
+    # 現在の天気と予報を同時に取得する例
+    current_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=ja"
+    forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=ja"
+    
+    curr_res = requests.get(current_url).json()
+    fore_res = requests.get(forecast_url).json()
+    
+    return {
+        "current": {
+            "temp": curr_res['main']['temp'],
+            "humidity": curr_res['main']['humidity'],
+            "pressure": curr_res['main']['pressure'],
+            "description": curr_res['weather'][0]['description'],
+            "icon": curr_res['weather'][0]['icon']
+        },
+        "forecast": fore_res['list'][:4] # 3時間おき×4個 = 12時間分
+    }
+
 # uvicorn main:app --host 0.0.0.0 --port 8000 --reload
