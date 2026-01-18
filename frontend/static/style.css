@@ -34,14 +34,12 @@ body {
     overflow: hidden;
 }
 
-/* --- 左カラム（Spotify） --- */
-.left-column {
+.left-column, .right-column {
+    height: calc(100vh - 16px); /* padding(8px*2)分を引く */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* ★上詰めに変更 */
-    gap: 12px;                  /* ★要素間のスキマを12pxに固定 */
-    height: 100%;
-    padding-top: 5px;           /* 画面の端すぎないよう微調整 */
+    gap: 8px;
+    overflow: hidden; /* カラム自体がスクロールするのを防ぐ */
 }
 
 .spotify-main {
@@ -79,20 +77,63 @@ body {
 }
 .btn { padding: 10px; font-size: 0.85rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: var(--panel-hover); color: white; }
 .btn-play { background: white; color: black; font-size: 1.1rem; }
+.device-selector-container {
+    position: relative;
+    width: 100%;
+}
 
-/* --- 右カラム（Calendar & Weather） --- */
-.right-column {
-    display: grid;
-    grid-template-rows: 1fr auto;
-    gap: 10px;
-    height: 100%;
-    overflow: hidden;
+#device-info {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+#device-info:hover {
+    background: var(--panel-hover);
+}
+
+/* デバイスリストのポップアップ */
+.device-list-popup {
+    display: none; /* 初期状態は隠す */
+    position: absolute;
+    bottom: 100%; /* 上方向に表示 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    background: var(--panel-bg);
+    border: 1px solid var(--spotify-green);
+    border-radius: 8px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+    z-index: 100;
+    margin-bottom: 10px;
+}
+
+.device-item {
+    padding: 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.device-item:last-child { border-bottom: none; }
+
+.device-item:hover {
+    background: var(--panel-hover);
+    color: var(--spotify-green);
+}
+
+.device-item.active {
+    color: var(--spotify-green);
+    font-weight: bold;
 }
 
 .info-calendar {
-    border-top: 3px solid var(--calendar-gold);
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
+    border-top: 3px solid var(--calendar-gold);
 }
 
 #clock {
@@ -103,8 +144,8 @@ body {
 }
 
 .calendar-container {
-    flex: 1;
-    overflow-y: auto;
+    flex: 1;           /* 予定リスト部分を伸ばす */
+    overflow-y: auto;  /* ここでスクロールを発生させる */
     padding-right: 4px;
 }
 
@@ -193,6 +234,7 @@ body {
     gap: 12px;
     padding: 15px !important;
     border-top: 3px solid #ff4757; /* 負荷情報は情熱の赤 */
+    flex-shrink: 0;
 }
 
 .res-item {
@@ -253,4 +295,74 @@ body {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
     100% { opacity: 1; }
+}
+
+/* --- Twitchセクション --- */
+.twitch-container {
+    flex: 1;           /* 余った縦のスペースをすべてTwitchに割り当てる */
+    min-height: 0;     /* これがないとflex配下でスクロールが効かない */
+    display: flex;
+    flex-direction: column;
+    border-top: 3px solid #9146FF;
+}
+#twitch-list {
+    flex: 1;           /* タイトルの下のリスト部分を伸ばす */
+    overflow-y: auto;  /* ここでスクロールを発生させる */
+    padding-right: 4px;
+}
+
+.twitch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(145, 70, 255, 0.05);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.twitch-item:hover {
+    background: rgba(145, 70, 255, 0.15);
+}
+
+.twitch-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid #9146FF;
+}
+
+.twitch-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.twitch-name {
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: block;
+}
+
+.twitch-title {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.twitch-viewer {
+    font-size: 0.65rem;
+    color: #ff4b4b;
+    font-weight: bold;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
 }

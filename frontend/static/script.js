@@ -21,39 +21,73 @@ function updateClock() {
     }
 }
 
+// デバイスリストの表示/非表示を切り替え
+function toggleDeviceList() {
+    const list = document.getElementById('device-list');
+    list.style.display = list.style.display === 'block' ? 'none' : 'block';
+}
+
+// デバイスを切り替える関数
+async function switchDevice(deviceId) {
+    await fetch(`/api/spotify/transfer/${deviceId}`);
+    document.getElementById('device-list').style.display = 'none';
+    setTimeout(updateSpotify, 500); // 状態を更新
+}
+
 // Spotify 状態更新
 async function updateSpotify() {
     try {
-        const response = await fetch('/api/spotify/current');
-        const data = await response.json();
+        // 現在の曲とデバイス一覧を同時に取得
+        const [currRes, devRes] = await Promise.all([
+            fetch('/api/spotify/current'),
+            fetch('/api/spotify/devices')
+        ]);
         
-        // デバッグ用：取得したデータをコンソールに表示
-        console.log("Spotify Data:", data);
-
+        const data = await currRes.json();
+        const devices = await devRes.json();
+        
         const imgEl = document.getElementById('album-art');
         const titleEl = document.getElementById('track-title');
+        const deviceEl = document.getElementById('device-info');
+        const listEl = document.getElementById('device-list');
         
-        // 要素が見つからない場合はここで終了（エラー回避）
-        if (!imgEl || !titleEl) return;
+        if (!imgEl || !titleEl || !deviceEl) return;
 
+        // --- 曲情報の更新 ---
         if (data.is_playing && data.image_url) {
             isPlaying = true;
             titleEl.innerText = data.title;
-            
-            // 画像の設定と表示
             imgEl.src = data.image_url;
-            imgEl.style.display = 'block'; // ここで「隠す」を解除
-            console.log("Image source set to:", data.image_url);
+            imgEl.style.display = 'block';
         } else {
             isPlaying = false;
             titleEl.innerText = "Spotify 停止中";
-            imgEl.style.display = 'none'; // 再生していないときは隠す
+            imgEl.src = "/static/no_track.png"; // 前に作ったデフォルト画像
+            imgEl.style.display = 'block';
         }
+
+        // --- デバイス一覧の更新 ---
+        const activeDev = devices.find(d => d.is_active);
+        deviceEl.innerText = activeDev ? `🎧 ${activeDev.name.toUpperCase()}` : "🎧 SELECT DEVICE";
+
+        listEl.innerHTML = devices.map(d => `
+            <div class="device-item ${d.is_active ? 'active' : ''}" onclick="switchDevice('${d.id}')">
+                <span>${d.name}</span>
+                <span>${d.is_active ? '●' : ''}</span>
+            </div>
+        `).join('');
+
     } catch (e) {
         console.error("Update error:", e);
     }
 }
 
+// 画面のどこかをクリックしたらリストを閉じる（利便性のため）
+window.addEventListener('click', (e) => {
+    if (!e.target.closest('.device-selector-container')) {
+        document.getElementById('device-list').style.display = 'none';
+    }
+});
 
 setInterval(updateSpotify, 5000);
 updateSpotify();
@@ -230,6 +264,35 @@ async function updateResources() {
         }
     } catch (e) { console.error("Resource error:", e); }
 }
+
+async function updateTwitch() {
+    try {
+        const res = await fetch('/api/twitch/followed');
+        const streams = await res.json();
+        const listEl = document.getElementById('twitch-list');
+
+        if (!Array.isArray(streams) || streams.length === 0) {
+            listEl.innerHTML = '<p style="font-size:0.7rem; text-align:center; opacity:0.5;">ライブ中のフォローはいません</p>';
+            return;
+        }
+
+        listEl.innerHTML = streams.map(stream => `
+            <div class="twitch-item" onclick="window.open('https://twitch.tv/${stream.user_login}', '_blank')">
+                <img class="twitch-avatar" src="${stream.thumbnail_url.replace('{width}', '50').replace('{height}', '50')}" alt="">
+                <div class="twitch-info">
+                    <span class="twitch-name">${stream.user_name}</span>
+                    <span class="twitch-title">${stream.title}</span>
+                </div>
+                <div class="twitch-viewer">● ${stream.viewer_count.toLocaleString()}</div>
+            </div>
+        `).join('');
+    } catch (e) { console.error("Twitch error:", e); }
+}
+
+// 5分ごとにチェック
+setInterval(updateTwitch, 300000);
+updateTwitch();
+
 // 2秒ごとに更新
 setInterval(updateResources, 1000);
 updateResources();

@@ -27,7 +27,10 @@
             <button id="play-pause-btn" onclick="togglePlay()" class="btn btn-play">▶</button>
         </div>
 
-        <div id="device-info">🎧 SEARCHING...</div>
+        <div class="device-selector-container">
+            <div id="device-info" onclick="toggleDeviceList()">🎧 SEARCHING...</div>
+            <div id="device-list" class="device-list-popup"></div>
+        </div>
         <div class="section info-weather-container">
             <div class="weather-main">
                 <div class="weather-row-top">
@@ -40,6 +43,12 @@
                 </div>
             </div>
             <div class="weather-forecast" id="forecast-list"></div>
+        </div>
+        <div class="section twitch-container">
+            <h3 class="sub-title" style="color: #9146FF;">LIVE NOW (Twitch)</h3>
+            <div id="twitch-list">
+                <p class="loading">配信者をチェック中...</p>
+            </div>
         </div>
     </div>
 

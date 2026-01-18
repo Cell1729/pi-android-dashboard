@@ -40,6 +40,8 @@ FRONTEND_DIR = os.path.normpath(os.path.join(BASE_DIR, "..", "frontend"))
 STATIC_DIR = os.path.join(FRONTEND_DIR, "static") # frontend/static を指す
 
 TOKEN_PATH = os.path.join(BASE_DIR, "auth", "token.json") 
+TWITCH_CLIENT_ID = os.getenv('TWITCH_CLIENT_ID')
+TWITCH_CLIENT_SECRET = os.getenv('TWITCH_CLIENT_SECRET')
 
 if not os.path.exists(STATIC_DIR):
     print(f"警告: 静的フォルダが見つかりません: {STATIC_DIR}")
@@ -143,6 +145,14 @@ async def get_devices():
     devices = sp.devices()
     return devices['devices'] # 名前、ID、アクティブかどうかが返る
 
+@app.get("/api/spotify/transfer/{device_id}")
+async def transfer_playback(device_id: str):
+    try:
+        # 指定したデバイスに再生を切り替える（第2引数Trueで即時再生開始）
+        sp.transfer_playback(device_id, force_play=True)
+        return {"status": "success"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 @app.get("/api/weather")
 async def get_weather():
@@ -211,4 +221,25 @@ async def get_resources():
             
     return res_data
 
+@app.get("/api/twitch/followed")
+async def get_followed_streams():
+    client_id = os.getenv('TWITCH_CLIENT_ID')
+    access_token = os.getenv('TWITCH_ACCESS_TOKEN')
+    user_id = os.getenv('TWITCH_USER_ID')
+    
+    headers = {
+            "Client-ID": client_id,
+            "Authorization": f"Bearer {access_token}"
+        }
+        
+    url = f"https://api.twitch.tv/helix/streams/followed?user_id={user_id}"
+    
+    res = requests.get(url, headers=headers)
+    data = res.json()
+        
+    if res.status_code != 200:
+        print(f"Error: {data.get('message')}")
+        return {"error": data.get('message')}
+
+    return data.get('data', [])
 # uvicorn main:app --host 0.0.0.0 --port 8000 --reload
