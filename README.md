@@ -14,4 +14,4 @@ youtubeで[4,000円で理想のスマートディスプレイを作ってみた�
 
 ![構成](docs/img/Composition.png)
 
-windows11のメインPCをHostとしてgnirehtet経由で中華タブレットに通信をする。
+windows11のメインPCをHostとしてgnirehtet経由で中華タブレットに通信をする。gnirehtet経由で通信を行っている理由として中華タブレットのWiFiカードが貧弱で通信が不安定のため。
