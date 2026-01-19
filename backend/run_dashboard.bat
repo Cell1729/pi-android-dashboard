@@ -8,4 +8,4 @@ start /b gnirehtet run
 :: --- FastAPI の起動 ---
 cd /d "C:\Users\sabax\source\repos\pi-android-dashboard\backend"
 call ..\.venv\Scripts\activate
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8000 --no-access-log
